@@ -3,6 +3,7 @@ package com.accenture.proxy.binding;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
 import com.accenture.proxy.factory.ProxyServiceFactory;
@@ -18,9 +19,16 @@ public class ServiceBinder implements ApplicationContextAware {
 		this.proxyServiceFactory = proxyServiceFactory;
 	}
 	
-	public <T> void bindServiceInstance(Class<T> clazz, ServiceHandler handler) {
-		T serviceInstance = applicationContext.getBean(clazz);
-		proxyServiceFactory.createRouterForService(clazz, serviceInstance);
+	public <T> void bindServiceInstance(Class<T> clazz, ServiceHandler<Boolean> handler) {
+		T instance = applicationContext.getBean(clazz);
+		try {
+			proxyServiceFactory.createRouterForService(clazz, instance);
+			handler.handle(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+			handler.handle(false);
+		}
+		
 	}
 
 	@Override
