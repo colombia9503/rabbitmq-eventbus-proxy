@@ -40,8 +40,6 @@ public class DefaultServiceRouteBuilder<T> extends CommonRouteBuilder {
 	@Override
 	public void bindService() throws Exception {
 		log.debug("Binding service class {}", clazz.getName());
-		AnnotatedType[] types = clazz.getAnnotatedInterfaces();
-		System.out.println(types.toString());
 		ProxyService proxyServiceAnnotation = clazz.getAnnotation(ProxyService.class);
 		if (!Optional.ofNullable(proxyServiceAnnotation).isPresent()) {
 			throw new InvalidServiceCandidateException(

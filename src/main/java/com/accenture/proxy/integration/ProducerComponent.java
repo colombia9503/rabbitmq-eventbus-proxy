@@ -18,8 +18,8 @@ public class ProducerComponent {
 		this.fluentProducerTemplate = fluentProducerTemplate;
 	}
 	
-	public <T> JsonObject sendMessage(T message, String serviceName, MessagingPlatformType messagingPlatformType) throws ServiceException {
-		Future<Object> result = fluentProducerTemplate.to(messagingPlatformType.getUri() + ":" + serviceName).withBody(message).asyncRequest();
+	public <T> JsonObject sendMessage(T message, String serviceName, String func, MessagingPlatformType messagingPlatformType) throws ServiceException {
+		Future<Object> result = fluentProducerTemplate.to(messagingPlatformType.getUri() + ":" + serviceName).withHeader("method", func).withBody(message).asyncRequest();
 		
 		try {
 			if(result.get() instanceof JsonObject) {
