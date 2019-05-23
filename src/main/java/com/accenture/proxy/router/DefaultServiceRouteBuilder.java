@@ -1,6 +1,5 @@
 package com.accenture.proxy.router;
 
-import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Method;
 import java.util.Optional;
 
@@ -8,6 +7,7 @@ import javax.annotation.PostConstruct;
 import javax.naming.OperationNotSupportedException;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.Exchange;
 import org.apache.camel.model.ChoiceDefinition;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.dataformat.JsonLibrary;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 
 import com.accenture.proxy.error.rpc.NoSuchServiceMethodException;
 import com.accenture.proxy.error.service.InvalidServiceCandidateException;
-import com.accenture.proxy.integration.MessagingPlatformType;
+import com.accenture.proxy.error.service.ServiceException;
 import com.accenture.proxy.service.ProxyService;
 
 @Component
@@ -56,8 +56,11 @@ public class DefaultServiceRouteBuilder<T> extends CommonRouteBuilder {
 		ChoiceDefinition serviceChoiceDefinition = baseDefiniton.choice();
 
 		for (Method method : serviceMethods) {
-			serviceChoiceDefinition.when(header("method").isEqualTo(method.getName())).bean(instance, method.getName());
-
+			serviceChoiceDefinition.when(header("method").isEqualTo(method.getName())).doTry().bean(instance, method.getName()).doCatch(ServiceException.class).process(exchange -> {
+				if(exchange.getProperty(Exchange.EXCEPTION_CAUGHT, ServiceException.class) != null) {
+					exchange.getIn().setBody(exchange.getProperty(Exchange.EXCEPTION_CAUGHT, ServiceException.class));
+				}
+			}).endDoTry();
 		}
 
 		serviceChoiceDefinition.otherwise().process(exchange -> {
