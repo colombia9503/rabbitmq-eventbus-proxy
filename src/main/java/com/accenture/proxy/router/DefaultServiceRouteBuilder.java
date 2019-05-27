@@ -52,7 +52,7 @@ public class DefaultServiceRouteBuilder<T> extends CommonRouteBuilder {
 		Method[] serviceMethods = clazz.getDeclaredMethods();
 
 		RouteDefinition baseDefiniton = from(broker + ":" + serviceName);
-
+		
 		ChoiceDefinition serviceChoiceDefinition = baseDefiniton.choice();
 
 		for (Method method : serviceMethods) {

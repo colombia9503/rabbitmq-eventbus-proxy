@@ -1,0 +1,3 @@
+FROM maven:3.5-jdk-8
+COPY . .
+RUN mvn clean install
